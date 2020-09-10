@@ -1,6 +1,6 @@
 -module(dijkstra).
 
--export([table/2, route/2]).
+-export([table/2, route/2, iterate/3]).
 
 route(Node, Table) ->
   case lists:keyfind(Node, 1, Table) of
@@ -18,12 +18,12 @@ table(Gateways, Map) ->
 
 iterate([], _, Table) ->
   Table;
-iterate(_, [{_, inf, _} | _], Table) ->
+iterate([{_, inf, _} | _], _, Table) ->
   Table;
 iterate([{Node, Length, Gateway} | Tail], Map, Table) ->
   Reachable = map:reachable(Node, Map),
   Rest = lists:foldl(fun(Elem, Sorted) -> update(Elem, Length+1, Node, Sorted) end, Tail, Reachable),
-  iterate(Rest, Map, Table ++ [{Node, Gateway}]).
+  iterate(Rest, Map, [{Node, Gateway} | Table]).
 
 
 update(Node, N, Gateway, Sorted) ->
