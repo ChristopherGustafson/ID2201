@@ -8,17 +8,39 @@ start(Nodes) ->
 stop(Logger) ->
   Logger ! stop.
 
-init(_) ->
-  loop().
+init(Nodes) ->
+  loop(vect:clock(Nodes), []).
 
-loop() ->
+loop(Clock, HoldBack) ->
   receive
     {log, From, Time, Msg} ->
-      log(From, Time, Msg),
-      loop();
+      NewClock = vect:update(From, Time, Clock),
+      NewHoldBack = checkHoldBack([{From, Time, Msg} | HoldBack], NewClock),
+      io:format("Logger: Adding msg to queue, length: ~w~n", [len(NewHoldBack)]),
+      loop(NewClock, NewHoldBack);
     stop ->
       ok
     end.
 
 log(From, Time, Msg) ->
   io:format("log: ~w ~w ~p~n", [Time, From, Msg]).
+
+
+checkHoldBack([], _) ->
+  [];
+checkHoldBack([{From, Time, Msg} | Rest], Clock) ->
+  case vect:safe(Time, Clock) of
+      true ->
+        %log(From, Time, Msg),
+        checkHoldBack(Rest, Clock);
+      false ->
+        [{From, Time, Msg} | checkHoldBack(Rest, Clock)]
+  end.
+
+len(List)->
+  len(List, 0).
+
+len([], Count) ->
+  Count;
+len([_ | Rest], Count) ->
+  len(Rest, Count+1).
