@@ -1,6 +1,6 @@
 -module(routy).
 
--export([start/1, stop/1, status/0]).
+-export([start/1, stop/1, status/1]).
 
 start(Name) ->
   register(Name, spawn(fun() -> init(Name) end)).
@@ -16,11 +16,21 @@ init(Name) ->
   History = history:new(Name),
   router(Name, 0, History, Interface, Table, Map).
 
-status() ->
+status(Ref) ->
+  Ref ! {status, self()},
   receive
-    {status, {Name, N, History, Interface, Table, Map}} ->
-      io:format("The status of ~w:~n  counter: ~w~n", [Name, N])
-    end.
+    {status, {Name, N, Hist, Intf, Table, Map}} ->
+      io:format("Status: Name, N, Hist, Intf, Table, Map ~n"),
+      io:format("Name: ~w~n", [Name]),
+      io:format("N: ~w~n", [N]),
+      io:format("History: ~w~n", [Hist]),
+      io:format("Interface: ~w~n", [Intf]),
+      io:format("Table: ~w~n", [Table]),
+      io:format("Map: ~w~n", [Map]),
+      ok;
+    true ->
+      io:format("  got something: ~n")
+  end.
 
 
 router(Name, N, History, Interface, Table, Map) ->
