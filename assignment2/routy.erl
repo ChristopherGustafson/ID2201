@@ -19,17 +19,17 @@ init(Name) ->
 status(Ref) ->
   Ref ! {status, self()},
   receive
-    {status, {Name, N, Hist, Intf, Table, Map}} ->
+    {status, {Name, N, History, Interface, Table, Map}} ->
       io:format("Status: Name, N, Hist, Intf, Table, Map ~n"),
       io:format("Name: ~w~n", [Name]),
       io:format("N: ~w~n", [N]),
-      io:format("History: ~w~n", [Hist]),
-      io:format("Interface: ~w~n", [Intf]),
+      io:format("History: ~w~n", [History]),
+      io:format("Interface: ~w~n", [Interface]),
       io:format("Table: ~w~n", [Table]),
       io:format("Map: ~w~n", [Map]),
       ok;
     true ->
-      io:format("  got something: ~n")
+      io:format("received something else: ~n")
   end.
 
 
