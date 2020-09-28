@@ -33,6 +33,13 @@ connect(_Id, Peer) ->
       io:format("Time out: no response~n",[])
   end.
 
+schedule_stabilize() ->
+  timer:send_interval(?Stabilize, self(), stabilize).
+
+stabilize({_, Spid}) ->
+  %io:format("Trying to send msg to ~w~n", [Spid]),
+  Spid ! {request, self()}.
+
 
 node(Id, Predecessor, Successor) ->
   receive
@@ -80,6 +87,28 @@ node(Id, Predecessor, Successor) ->
 
     end.
 
+notify({Nkey, Npid}, Id, Predecessor) ->
+  %io:format("notify called~n"),
+  case Predecessor of
+    nil ->
+      {Nkey, Npid};
+    {Pkey, _} ->
+      case key:between(Nkey, Pkey, Id) of
+        true ->
+          {Nkey, Npid};
+        false ->
+          Predecessor
+      end
+    end.
+
+request(Peer, Predecessor) ->
+  case Predecessor of 
+    nil ->
+      Peer ! {status, nil};
+    {Pkey, Ppid} ->
+      Peer ! {status, {Pkey, Ppid}}
+  end.  
+
 
 stabilize(Pred, Id, Successor) ->
   {Skey, Spid} = Successor,
@@ -103,36 +132,6 @@ stabilize(Pred, Id, Successor) ->
           Successor
       end
 
-    end.
-
-schedule_stabilize() ->
-  timer:send_interval(?Stabilize, self(), stabilize).
-
-stabilize({_, Spid}) ->
-  %io:format("Trying to send msg to ~w~n", [Spid]),
-  Spid ! {request, self()}.
-
-request(Peer, Predecessor) ->
-  case Predecessor of 
-    nil ->
-      Peer ! {status, nil};
-    {Pkey, Ppid} ->
-      Peer ! {status, {Pkey, Ppid}}
-  end.  
-
-
-notify({Nkey, Npid}, Id, Predecessor) ->
-  %io:format("notify called~n"),
-  case Predecessor of
-    nil ->
-      {Nkey, Npid};
-    {Pkey, _} ->
-      case key:between(Nkey, Pkey, Id) of
-        true ->
-          {Nkey, Npid};
-        false ->
-          Predecessor
-      end
     end.
 
 
