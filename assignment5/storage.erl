@@ -16,12 +16,12 @@ split(From, To, Store) ->
 
 split(_From, _To, [], Updated, Rest) ->
   {Updated, Rest};
-split(From, To, [{Key, Value} | Rest], Updated, Rest) ->
+split(From, To, [{Key, Value} | Tail], Updated, Rest) ->
   case key:between(Key, From, To) of
     true ->
-      split(From, To, Rest, [{Key, Value} | Updated], Rest);
+      split(From, To, Tail, [{Key, Value} | Updated], Rest);
     false ->
-      split(From, To, Rest, Updated, [{Key, Value} | Rest])
+      split(From, To, Tail, Updated, [{Key, Value} | Rest])
   end.
 
 merge(Entries, Store) ->
