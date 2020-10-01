@@ -77,7 +77,16 @@ check([Key|Keys], P, Failed, Timeout) ->
     end.
 
 
-    
+
+
+
+addCheck(_P, 0, _AmKey) ->
+  ok;   
+addCheck(P, N, AmKey) ->
+  spawn(fun() -> Keys = keys(AmKey), add(Keys, P), check(Keys, P) end),
+  addCheck(P, N-1, AmKey).
+
+
 
 
 

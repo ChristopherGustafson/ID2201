@@ -11,6 +11,7 @@ run(N, Node) ->
   io:format("Execution time: ~w seconds~n", [T]).
 
 
+
 add(0, _) ->
   [];
 add(N, Node) ->
@@ -29,7 +30,7 @@ lookup([Key | Rest], Node) ->
   Node ! {lookup, Key, Ref, self()},
   receive
     {Ref, Result} ->
-      io:format("Received lookup result: ~w~n", [Result]),
+      %io:format("Received lookup result: ~w~n", [Result]),
       lookup(Rest, Node)
   end.  
   
